@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+  
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      
+    <title>Probability Thingamajig</title>
+    
+    <!--CSS STYLESHEETS-->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrapValidator.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!--JAVASCRIPT LIBRARIES-->
+    <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/bootstrapValidator.js"></script>
+    <script type="text/javascript" src="js/html5shiv.min.js"></script>   
+    
+</head>
+    
+    <body>
+        
+        <div class="container">
+            
+            <div class="row">
+                
+                <div class="col-xs-4 col-xs-offset-4">
+                    
+                    <div class="img-wrapper"><img src="img/logo.gif" width="140px"></div>
+                    
+                    <div class="wrapper">
+                        
+                        <h2>This is a weird, probability-generator thingy.</h2>
+                        
+                        <p>We did some coding magic and put integers (1-123) into a string - spelled out, no spaces.</p>
+                        <div class="content-wrapper">
+                        <h4>rdclslylngstrng.length( ) =</h4>
+                        
+                        <div class="switch-container">
+                            
+                            <div class="switch">
+                              <input id="cmn-toggle-7" class="cmn-toggle cmn-toggle-yes-no" type="checkbox">
+                                
+                              <label for="cmn-toggle-7" data-on="1358" data-off="show"></label>
+                                
+                            </div>
+                            
+                        </div>
+                        
+                        <h4>% of var yourLetter</h4>
+                        
+                        <div class="input-wrapper">
+                            
+                            <div class="input-container"><input id="letter" type="text" name="letter"  maxlength="1" required></div>
+                            
+                            <div class="num-container"></div>
+                            
+                            <div><button class="done-btn" type="submit">done</button></div>
+                            
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+
+    </body>
+    
+    <script>
+        
+        $(document).ready(function() {
+            
+            var integer = { 
+                onesInts : [
+                    "",
+                    "one",
+                    "two",
+                    "three",
+                    "four",
+                    "five",
+                    "six",
+                    "seven",
+                    "eight",
+                    "nine",
+                    "ten",
+                    "eleven",
+                    "twelve",
+                    "thirteen",
+                    "fourteen",
+                    "fifteen",
+                    "sixteen",
+                    "seventeen",
+                    "eighteen",
+                    "nineteen"
+                ],
+                tensInts : [
+                    "",
+                    "ten",
+                    "twenty",
+                    "thirty",
+                    "forty",
+                    "fifty",
+                    "sixty",
+                    "seventy",
+                    "eighty",
+                    "ninety"
+                ]
+            }; 
+            
+            function convertToString(number) {
+                
+                var numStr = "";
+                var tensInt = "";
+                var onesInt = "";
+                
+                // add string if number is or is not over 100
+                if (number / 100 >= 1) {
+                    numStr = "onehundred";
+                }
+                
+                else {
+                    numStr = "";
+                }
+                
+                // determine ones value digit
+                if (number % 100 < 20){
+                    numStr += integer.onesInts[number % 100];
+                    number /= 100;
+                }
+                
+                // determine tens value digit
+                else {
+                    onesInt = integer.onesInts[number % 10];
+                    number /= 10;
+
+                    tensInt = integer.tensInts[Math.floor(number) % 10];
+                    number /= 10;
+                }
+                
+                return numStr + tensInt + onesInt;
+                
+            }
+            
+            // returns a compiled string of spelled out integers from 1 to 123.
+            function buildNumString() {
+                
+                var listStr = "";
+                
+                // iterate through loop and concatenate each spelled out integer.
+                for ( var i = 1; i <= 123; i++) {
+                    listStr += convertToString(i) + "\n";
+                }
+                
+                return listStr;
+                
+            }
+            
+            // calculates the occurences of the inputted letter
+            function calcProbabilty(letter) {
+                
+                // store compiled string of integers (1-123)
+                var str = buildNumString();
+                
+                // determine empirical probability of letter in this string 
+                var pattern = new RegExp(letter, "g");
+                var uncatPer = ((str.length-str.replace(pattern,"").length)/str.length)*100;
+                
+                return Math.round(uncatPer);
+                
+            }
+            
+            // assures only characters a-z and A-Z can be submitted for probability check
+            $("input").bind("keypress", function (event) {
+                
+                var regex = new RegExp("^[a-zA-Z]+$");
+                var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+
+                if (!regex.test(key)) {
+                   event.preventDefault();
+                   return false;
+                }
+                
+            });
+            
+            // perform various actions on 'done'/'reset' click
+            $(".done-btn").click(function() {
+                
+                //get value of input and calculate its probability
+                var letter = $("#letter").val().toString();
+                var percent = calcProbabilty(letter)+ "%"; 
+
+                //toggle 'input' and 'input-active' button classes
+                $("input").toggleClass("input-active");
+                
+                //toggle 'done' and 'reset' button classes
+                $(".done-btn").toggleClass("reset-btn");
+                
+                // if 'reset' button is set
+                if($(".input-wrapper").find(".reset-btn").length) {
+                    
+                    //remove css transitions class if it exists
+                    $("input").removeClass("no-transition");
+                    
+                    // change inner text of button to 'reset'
+                    $(".reset-btn").html("reset");
+                    
+                    // translate input to the left by 30px
+                    $("input").css("transform","translateX(-35px)");
+                    
+                    // change text color on reset
+                    $("input[type='text']").css("color","#ff926f");                  
+                    
+                    // change percentage upon 'done'
+                    $(".num-container").replaceWith("<div class='num-container' style='display:none;'><div class='percent-txt'>=&nbsp;&nbsp;"+percent+"</div></div>");
+                    
+                    //toggle hide and show for transitions
+                    $(".num-container").hide();  
+                    $(".num-container").show();
+                    
+                    // translate percentage to the left by 10px
+                    $(".num-container").css("transform","translateX(10px)");  
+                    
+                    // fade in percentage value on reset
+                    $(".num-container").css("opacity","1");
+                    
+                    //disable input field
+                    $("#letter").prop('disabled', true);
+                    
+                }
+                
+                // if 'done' button is set
+                else{
+                    
+                    //add css transitions class if it exists
+                    $("input").addClass("no-transition");
+                    
+                    // change inner text of button to 'done'
+                    $(".done-btn").html('done');
+                    
+                    // translate input back to original position       
+                    $("input").css("transform","translateX(0px)");
+                    
+                    // change text color on reset
+                    $("input[type='text']").css("color","#f2868a");
+                    
+                    // hide percentage value on reset
+                    $(".num-container").hide();
+                    
+                    // reset input value to ""
+                    $("#letter").val("");
+                    
+                    // enable input field
+                    $("#letter").prop('disabled', false);
+                }
+                
+            });
+            
+        });
+        
+    </script>
+    
+</html>
